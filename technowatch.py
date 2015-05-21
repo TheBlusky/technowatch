@@ -36,7 +36,7 @@ def build():
     for item in sorted(known_stories.values(), key=operator.itemgetter('crawledDate'), reverse=True):
         fe = fg.add_entry()
         fe.link(href=item['url'], rel='alternate')
-        fe.title("["+item['type'] + "] " + item['title'])
+        fe.title("[" + item['type'] + "] " + item['title'])
         fe.category({
             'label': item['type'],
             'term': item['type']
@@ -45,13 +45,12 @@ def build():
         fe.description(item['desc'])
         fe.pubdate(item['crawledDate'])
     # Caching RSS building
-    fg.rss_file(__file__+'/../static/rss.xml')
-    pickle.dump(known_stories, open(__file__+"/../technowatch.data", "wb"))
-
+    fg.rss_file(__file__ + '/../static/rss.xml')
+    pickle.dump(known_stories, open(__file__ + "/../technowatch.data", "wb"))
 
 # Initialize global variable
 try:
-    known_stories = pickle.load(open(__file__+"/../technowatch.data", "rb"))
+    known_stories = pickle.load(open(__file__ + "/../technowatch.data", "rb"))
 except IOError:
     known_stories = {}
 build()
@@ -66,7 +65,7 @@ def check_githubtrend():
         title = li.find("h3", {'class': 'repo-list-name'}).a.get('href')
         lang = li.find("p", {'class': 'repo-list-meta'}).get_text().split('\n')[1]
         if title not in known_stories:
-            item = {'title': "["+lang.replace(" ", "")+"] " + title,
+            item = {'title': "[" + lang.replace(" ", "") + "] " + title,
                     'url': "https://github.com" + title,
                     'by': title.split("/")[1],
                     'crawledDate': datetime.datetime.now().replace(tzinfo=pytz.utc),
@@ -81,12 +80,12 @@ def check_githubtrend():
 def check_hackernews():
     rebuild = False
     # API request for top stories
-    top = requests.get('https://hacker-news.firebaseio.com/v0/topstories.json')\
+    top = requests.get('https://hacker-news.firebaseio.com/v0/topstories.json') \
               .json()[:int(parser.get('technowatch', 'hackernews_noise'))]
     for story in top:
         if story not in known_stories:
             # Getting and storing new top story information
-            item = requests.get('https://hacker-news.firebaseio.com/v0/item/'+str(story)+'.json').json()
+            item = requests.get('https://hacker-news.firebaseio.com/v0/item/' + str(story) + '.json').json()
             item['crawledDate'] = datetime.datetime.now().replace(tzinfo=pytz.utc)
             item['type'] = "hacker-news"
             item['key'] = story
@@ -127,11 +126,7 @@ def show_rss():
     return app.send_static_file('rss.xml')
 
 
-@app.errorhandler(Exception)
-def exception_handler(error):
-    return "!!!!"  + repr(error)
-
 if __name__ == '__main__':
     thread = threading.Thread(None, threaded, None)
     thread.start()
-    app.run()
+    app.run(host=parser.get('technowatch', 'host'), port=int(parser.get('technowatch', 'port')))

@@ -2,7 +2,7 @@
 Yet another RSS technological watch.
 
 ## Features
-An example worth a thousand words, so here is an example: http://bit.ly/1IRD8cJ
+An example worth a thousand words, so here is an example: http://bit.ly/1IRD8cJ (read it as an RSS feed if your browser shows some noise ...)
 ## Install
 ```bash
 git clone https://github.com/TheBlusky/technowatch.git

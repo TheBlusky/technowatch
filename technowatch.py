@@ -1,7 +1,8 @@
 from ConfigParser import SafeConfigParser
+import json
 from feedgen.feed import FeedGenerator
 from bs4 import BeautifulSoup
-from flask import Flask, render_template
+from flask import Flask
 import threading
 import operator
 import datetime
@@ -77,6 +78,26 @@ def check_githubtrend():
             rebuild = True
     return rebuild
 
+def check_producthunt():
+    rebuild = False
+    # requesting github + bs
+    html_doc = requests.get('http://www.producthunt.com/').content
+    soup = BeautifulSoup(html_doc)
+    for li in soup.find_all('li', {'data-react-class': 'PostItem'})[:10]:
+        j = json.loads(li.get('data-react-props'))
+        key = "ph-" + str(j['id'])
+        if key not in known_stories:
+            item = {'title': j['name'],
+                    'url': "http://www.producthunt.com" + j['shortened_url'],
+                    'by': 'no one',
+                    'crawledDate': datetime.datetime.now().replace(tzinfo=pytz.utc),
+                    'type': "producthunt",
+                    'key': key,
+                    'desc': j['tagline']}
+            known_stories[key] = item
+            rebuild = True
+    return rebuild
+
 
 def check_hackernews():
     rebuild = False
@@ -101,6 +122,7 @@ def check_news():
     # Checking all new news
     rebuild = True if check_hackernews() else rebuild
     rebuild = True if check_githubtrend() else rebuild
+    rebuild = True if check_producthunt() else rebuild
     if rebuild:
         # If new stories, rebuilding feed
         build()

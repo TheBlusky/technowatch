@@ -9,6 +9,7 @@ import requests
 import pickle
 import pytz
 import time
+import os
 
 
 # Initialize app
@@ -19,7 +20,7 @@ fg = FeedGenerator()
 
 # Initialize conf
 parser = SafeConfigParser()
-parser.read(__file__ + '/../technowatch.conf')
+parser.read(os.path.dirname(os.path.realpath(__file__)) + '/technowatch.conf')
 
 
 def build():
@@ -45,12 +46,12 @@ def build():
         fe.description(item['desc'])
         fe.pubdate(item['crawledDate'])
     # Caching RSS building
-    fg.rss_file(__file__ + '/../static/rss.xml')
-    pickle.dump(known_stories, open(__file__ + "/../technowatch.data", "wb"))
+    fg.rss_file(os.path.dirname(os.path.realpath(__file__)) + '/static/rss.xml')
+    pickle.dump(known_stories, open(os.path.dirname(os.path.realpath(__file__)) + "/technowatch.data", "wb"))
 
 # Initialize global variable
 try:
-    known_stories = pickle.load(open(__file__ + "/../technowatch.data", "rb"))
+    known_stories = pickle.load(open(os.path.dirname(os.path.realpath(__file__)) + "/technowatch.data", "rb"))
 except IOError:
     known_stories = {}
 build()

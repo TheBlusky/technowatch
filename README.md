@@ -1,4 +1,4 @@
-## technowatch
+# technowatch
 Yet another RSS technological watch.
 
 ## Features
@@ -14,7 +14,7 @@ vim technowatch.conf
 python technowatch.py
 ```
 ## Configuration
-``bash
+```bash
 vim technowatch.conf
 ```
 host: Listening interface (default: 0.0.0.0)
@@ -33,7 +33,7 @@ flask>=0.10.1
 requests>=2.2.1
 ## Extension
 If you want to monitor another website, create a new method that respect the follwoing rules:
-``python
+```python
 def check_XXX():
     rebuild = False
     # Here some code to request the website
@@ -57,6 +57,6 @@ def check_XXX():
     return rebuild
 ```
 and add the following in `check_news`
-``python
+```python
 rebuild = True if check_XXX() else rebuild
 ```

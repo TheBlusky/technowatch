@@ -17,6 +17,7 @@ python technowatch.py
 ```bash
 vim technowatch.conf
 ```
+```
 host: Listening interface (default: 0.0.0.0)
 port: Listening port (default: 5060)
 cache_max: Maximum items in memory (default: 100)
@@ -25,12 +26,15 @@ refresh: Time in seconds between refreshing news (default: 60)
 name: Name of the RSS file (default: Technowatch)
 link: Link of the RSS file (default: http://dan.lousqui.fr)
 hackernews_noise: Top file to listen on hackernews (default: 10)
+```
 ## Requirement
+```
 beautifulsoup4>=4.3.2
 configparser>=3.3.0r2
 feedgen>=0.3.1
 flask>=0.10.1
 requests>=2.2.1
+```
 ## Extension
 If you want to monitor another website, create a new method that respect the follwoing rules:
 ```python

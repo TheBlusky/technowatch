@@ -6,6 +6,7 @@ An example worth a thousand words, so here is an example: http://bit.ly/1IRD8cJ 
 
 Ok... It wasn't as self explanatory as expected... This is an RSS feed that contains :
   - TOP 10 elements of hackernews (https://news.ycombinator.com/)
+  - TOP 10 elements of producthunt (http://www.producthunt.com/)
   - Trending github repositories (https://github.com/trending)
   
 The script scrap those site every minute, and if something is new, it create a new item inside the RSS feed. As simple as that.

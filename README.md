@@ -2,7 +2,7 @@
 Yet another RSS technological watch.
 
 ## Features
-An example worth a thousand words, so here is an example: http://bit.ly/1IRD8cJ (read it as an RSS feed if your browser shows some noise ...)
+An example worth a thousand words, so here is an example: http://bit.ly/1IRD8cJ (read it as an RSS feed if your browser shows some noise ...(ex: http://bit.ly/1dnoX3T))
 
 Ok... It wasn't as self explanatory as expected... This is an RSS feed that contains :
   - TOP 10 elements of hackernews (https://news.ycombinator.com/)

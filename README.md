@@ -8,6 +8,7 @@ Ok... It wasn't as self explanatory as expected... This is an RSS feed that cont
   - TOP 10 elements of hackernews (https://news.ycombinator.com/)
   - TOP 10 elements of producthunt (http://www.producthunt.com/)
   - Trending github repositories (https://github.com/trending)
+  - TOP 10 elements of dribble GIF (https://dribbble.com/shots?list=animated)
   
 The script scrap those site every minute, and if something is new, it create a new item inside the RSS feed. As simple as that.
 If you use a RSS agregator, it's a good way to be up-to-date of popular itmes (rather than "new" items").

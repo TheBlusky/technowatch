@@ -2,7 +2,6 @@ from ConfigParser import SafeConfigParser
 import json
 from feedgen.feed import FeedGenerator
 from bs4 import BeautifulSoup
-from flask import Flask
 import threading
 import operator
 import datetime
@@ -13,15 +12,32 @@ import time
 import os
 
 
-# Initialize app
-app = Flask(__name__)
+# Initialize conf
+cust_path = os.path.dirname(os.path.realpath(__file__))
+parser = SafeConfigParser()
+parser.read(cust_path + '/technowatch.conf')
 
 # Initialize feed
 fg = FeedGenerator()
 
-# Initialize conf
-parser = SafeConfigParser()
-parser.read(os.path.dirname(os.path.realpath(__file__)) + '/technowatch.conf')
+# Initialize app
+if parser.get('wsgi', 'activated') == "True":
+    from flask import Flask
+    app = Flask(__name__)
+
+
+def upload():
+    from ftplib import FTP
+    print "Uploading ..."
+    ftp = FTP(parser.get('ftp', 'host'),
+              parser.get('ftp', 'user'),
+              parser.get('ftp', 'pass'))
+    ftp.cwd(parser.get('ftp', 'path'))
+    fg.rss_file(cust_path + '/static/' + parser.get('ftp', 'filename'))
+    ftp.storbinary("STOR " + parser.get('ftp', 'filename'),
+                   open(cust_path + '/static/' + parser.get('ftp', 'filename'), 'r'))
+    ftp.close()
+    print "Uploaded ..."
 
 
 def build():
@@ -47,12 +63,15 @@ def build():
         fe.description(item['desc'])
         fe.pubdate(item['crawledDate'])
     # Caching RSS building
-    fg.rss_file(os.path.dirname(os.path.realpath(__file__)) + '/static/rss.xml')
-    pickle.dump(known_stories, open(os.path.dirname(os.path.realpath(__file__)) + "/technowatch.data", "wb"))
+    pickle.dump(known_stories, open(cust_path + "/technowatch.data", "wb"))
+    if parser.get('wsgi', 'activated') == "True":
+        fg.rss_file(cust_path + '/static/rss.xml')
+    if parser.get('ftp', 'activated') == "True":
+        upload()
 
 # Initialize global variable
 try:
-    known_stories = pickle.load(open(os.path.dirname(os.path.realpath(__file__)) + "/technowatch.data", "rb"))
+    known_stories = pickle.load(open(cust_path + "/technowatch.data", "rb"))
 except IOError:
     known_stories = {}
 build()
@@ -78,32 +97,36 @@ def check_githubtrend():
             rebuild = True
     return rebuild
 
+
 def check_producthunt():
     rebuild = False
     # requesting github + bs
     html_doc = requests.get('http://www.producthunt.com/').content
     soup = BeautifulSoup(html_doc)
     for li in soup.find_all('li', {'data-react-class': 'PostItem'})[:10]:
-        j = json.loads(li.get('data-react-props'))
-        key = "ph-" + str(j['id'])
-        if key not in known_stories:
-            item = {'title': j['name'],
-                    'url': "http://www.producthunt.com" + j['shortened_url'],
-                    'by': 'no one',
-                    'crawledDate': datetime.datetime.now().replace(tzinfo=pytz.utc),
-                    'type': "producthunt",
-                    'key': key,
-                    'desc': j['tagline']}
-            known_stories[key] = item
-            rebuild = True
+        try:
+            j = json.loads(li.get('data-react-props'))
+            key = "ph-" + str(j['id'])
+            if key not in known_stories:
+                item = {'title': j['name'],
+                        'url': "http://www.producthunt.com" + j['shortened_url'],
+                        'by': 'no one',
+                        'crawledDate': datetime.datetime.now().replace(tzinfo=pytz.utc),
+                        'type': "producthunt",
+                        'key': key,
+                        'desc': j['tagline']}
+                known_stories[key] = item
+                rebuild = True
+        except:
+            print "Product Hunt bugged..."
     return rebuild
 
 
 def check_hackernews():
     rebuild = False
     # API request for top stories
-    top = requests.get('https://hacker-news.firebaseio.com/v0/topstories.json') \
-              .json()[:int(parser.get('technowatch', 'hackernews_noise'))]
+    noise = int(parser.get('technowatch', 'hackernews_noise'))
+    top = requests.get('https://hacker-news.firebaseio.com/v0/topstories.json').json()[:noise]
     for story in top:
         if story not in known_stories:
             # Getting and storing new top story information
@@ -120,9 +143,8 @@ def check_hackernews():
 def check_news():
     rebuild = False
     # Checking all new news
-    rebuild = True if check_hackernews() else rebuild
-    rebuild = True if check_githubtrend() else rebuild
-    rebuild = True if check_producthunt() else rebuild
+    for check in (check_hackernews, check_githubtrend, check_producthunt):
+        rebuild = True if check() else rebuild
     if rebuild:
         # If new stories, rebuilding feed
         build()
@@ -143,13 +165,15 @@ def threaded():
         time.sleep(int(parser.get('technowatch', 'refresh')))
 
 
-@app.route('/')
-def show_rss():
-    # Simply return cached RSS
-    return app.send_static_file('rss.xml')
+if parser.get('wsgi', 'activated') == "True":
+    @app.route('/')
+    def show_rss():
+        # Simply return cached RSS
+        return app.send_static_file('rss.xml')
 
 
 if __name__ == '__main__':
     thread = threading.Thread(None, threaded, None)
     thread.start()
-    app.run(host=parser.get('technowatch', 'host'), port=int(parser.get('technowatch', 'port')))
+    if parser.get('wsgi', 'activated') == "True":
+        app.run(host=parser.get('wsgi', 'host'), port=int(parser.get('wsgi', 'port')))

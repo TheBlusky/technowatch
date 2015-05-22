@@ -1,6 +1,4 @@
 [technowatch]
-host=0.0.0.0
-port=5060
 cache_max=100
 cache_min=50
 refresh=60
@@ -9,5 +7,12 @@ link=http://dan.lousqui.fr
 hackernews_noise=10
 [wsgi]
 activated=True
+host=0.0.0.0
+port=5060
 [ftp]
-activated=True
+activated=False
+host=None
+port=None
+user=None
+pass=None
+path=None

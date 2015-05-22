@@ -95,7 +95,7 @@ def check_dribble():
                             'crawledDate': datetime.datetime.now().replace(tzinfo=pytz.utc),
                             'type': "dribble",
                             'key': key,
-                            'desc': "li.find('strong').get_text()<br />"
+                            'desc': li.find('strong').get_text() + "<br />"
                                     "<a href='" + link + "'>"
                                     "<img src='" + img + "' />"
                                     "</a>"}

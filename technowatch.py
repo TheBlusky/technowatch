@@ -112,18 +112,21 @@ def check_githubtrend():
     html_doc = requests.get('https://github.com/trending').content
     soup = BeautifulSoup(html_doc)
     for li in soup.find_all('li', {'class': 'repo-list-item'}):
-        title = li.find("h3", {'class': 'repo-list-name'}).a.get('href')
-        lang = li.find("p", {'class': 'repo-list-meta'}).get_text().split('\n')[1]
-        if title not in known_stories:
-            item = {'title': "[" + lang.replace(" ", "") + "] " + title,
-                    'url': "https://github.com" + title,
-                    'by': title.split("/")[1],
-                    'crawledDate': datetime.datetime.now().replace(tzinfo=pytz.utc),
-                    'type': "github",
-                    'key': title,
-                    'desc': li.find("p", {'class': 'repo-list-description'}).get_text()}
-            known_stories[title] = item
-            rebuild = True
+        try:
+            title = li.find("h3", {'class': 'repo-list-name'}).a.get('href')
+            lang = li.find("p", {'class': 'repo-list-meta'}).get_text().split('\n')[1]
+            if title not in known_stories:
+                item = {'title': "[" + lang.replace(" ", "") + "] " + title,
+                        'url': "https://github.com" + title,
+                        'by': title.split("/")[1],
+                        'crawledDate': datetime.datetime.now().replace(tzinfo=pytz.utc),
+                        'type': "github",
+                        'key': title,
+                        'desc': li.find("p", {'class': 'repo-list-description'}).get_text()}
+                known_stories[title] = item
+                rebuild = True
+        except:
+            print "Github bugged ..."
     return rebuild
 
 

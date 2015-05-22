@@ -172,7 +172,7 @@ def check_hackernews():
 def check_news():
     rebuild = False
     # Checking all new news
-    for check in (check_hackernews, check_githubtrend, check_producthunt):
+    for check in (check_hackernews, check_githubtrend, check_producthunt, check_dribble):
         rebuild = True if check() else rebuild
     if rebuild:
         # If new stories, rebuilding feed

@@ -15,6 +15,7 @@ If you use a RSS agregator, it's a good way to be up-to-date of popular itmes (r
 ```bash
 git clone https://github.com/TheBlusky/technowatch.git
 cd technowatch
+cp technowatch.conf-dist technowatch.conf
 vim technowatch.conf
 ```
 ## Use it

@@ -114,6 +114,8 @@ def check_githubtrend():
     for li in soup.find_all('li', {'class': 'repo-list-item'}):
         try:
             title = li.find("h3", {'class': 'repo-list-name'}).a.get('href')
+            desc = li.find("p", {'class': 'repo-list-description'})
+            desc = desc.get_text() if desc is not None else ""
             lang = li.find("p", {'class': 'repo-list-meta'}).get_text().split('\n')[1]
             if title not in known_stories:
                 item = {'title': "[" + lang.replace(" ", "") + "] " + title,
@@ -122,7 +124,7 @@ def check_githubtrend():
                         'crawledDate': datetime.datetime.now().replace(tzinfo=pytz.utc),
                         'type': "github",
                         'key': title,
-                        'desc': li.find("p", {'class': 'repo-list-description'}).get_text()}
+                        'desc': desc}
                 known_stories[title] = item
                 rebuild = True
         except:

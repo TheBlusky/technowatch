@@ -131,7 +131,7 @@ def check_news():
 def clean():
     left = len(known_stories) - int(parser.get('technowatch', 'cache_min'))
     for item in sorted(known_stories.values(), key=operator.itemgetter('crawledDate')):
-        del known_stories[item.key]
+        del known_stories[item['key']]
         left -= 1
         if left == 0:
             return
